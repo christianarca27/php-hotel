@@ -41,6 +41,8 @@ $hotels = [
 ];
 
 $isParkingFilterActive = $_GET["parking"] ?? "off";
+$minVote = (int) ($_GET["vote"] ?? 0);
+$numResults = 0;
 
 ?>
 
@@ -61,7 +63,14 @@ $isParkingFilterActive = $_GET["parking"] ?? "off";
     <form action="index.php" method="get">
         <label for="checkbox-parking">Parcheggio disponibile</label>
         <input type="checkbox" name="parking" id="checkbox-parking" <?php echo $isParkingFilterActive == "on" ? "checked" : ""; ?>>
+
         <br>
+
+        <label for="input-vote">Voto</label>
+        <input type="number" min="0" name="vote" id="input-vote" placeholder="Inserisci voto minimo" <?php echo $minVote > 0 ? "value='{$minVote}'" : "" ?>>
+
+        <br>
+
         <input type="submit" value="Filtra">
     </form>
 
@@ -93,7 +102,9 @@ $isParkingFilterActive = $_GET["parking"] ?? "off";
                 // Considera l'hotel solo se:
                 // - non è attivo nessun filtro
                 // - è attivo il filtro sul parcheggio e l'hotel ha il parcheggio
-                if ($isParkingFilterActive == "off" || ($isParkingFilterActive == "on" && $hotel["parking"] == "yes")) {
+                // - il voto minimo dell'hotel è >= a quello impostato nel filtro di ricerca (in caso non fosse presente 0)
+                if (($isParkingFilterActive == "off" || ($isParkingFilterActive == "on" && $hotel["parking"] == "yes")) && $hotel["vote"] >= $minVote) {
+                    $numResults++;
                     ?>
 
                     <tr>
@@ -128,6 +139,16 @@ $isParkingFilterActive = $_GET["parking"] ?? "off";
             ?>
         </tbody>
     </table>
+
+    <?php
+    // In caso ci fosse almeno un risultato stampo il numero di risultati ottenuti dalla ricerca
+    // Altrimenti avviso l'utente che non ci sono risultati corrispondenti con i criteri selezionati
+    if ($numResults > 0) {
+        echo "<p>Risultati trovati: {$numResults}</p>";
+    } else {
+        echo "<p>Non è stato possibile trovare risultati con i criteri selezionati.</p>";
+    }
+    ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
