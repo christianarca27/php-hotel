@@ -40,6 +40,8 @@ $hotels = [
 
 ];
 
+$isParkingFilterActive = $_GET["parking"] ?? "off";
+
 ?>
 
 <!DOCTYPE html>
@@ -55,6 +57,13 @@ $hotels = [
 
 <body>
     <h1>PHP Hotel</h1>
+
+    <form action="index.php" method="get">
+        <label for="checkbox-parking">Parcheggio disponibile</label>
+        <input type="checkbox" name="parking" id="checkbox-parking" <?php echo $isParkingFilterActive == "on" ? "checked" : ""; ?>>
+        <br>
+        <input type="submit" value="Filtra">
+    </form>
 
     <table class="table">
         <thead>
@@ -81,35 +90,40 @@ $hotels = [
             // - con il primo scorro tutti gli oggetti hotel
             // - con il secondo all'interno di ogni oggetto hotel leggo il valore di ognuno dei campi presenti
             foreach ($hotels as $hotel) {
-                ?>
-
-                <tr>
-                    <?php
-                    foreach ($hotel as $key => $value) {
-                        ?>
-
-                        <td>
-                            <?php
-                            // Nel caso in cui stia leggendo il campo con chiave "parking" associo i valori (true, false) alla stampa di (yes, no)
-                            // Altrimenti stampo il valore così come è
-                            if ($key == "parking") {
-                                if ($value) {
-                                    echo "yes";
-                                } else {
-                                    echo "no";
-                                }
-                            } else {
-                                echo $value;
-                            }
-                            ?>
-                        </td>
-
-                        <?php
-                    }
+                // Considera l'hotel solo se:
+                // - non è attivo nessun filtro
+                // - è attivo il filtro sul parcheggio e l'hotel ha il parcheggio
+                if ($isParkingFilterActive == "off" || ($isParkingFilterActive == "on" && $hotel["parking"] == "yes")) {
                     ?>
-                </tr>
 
-                <?php
+                    <tr>
+                        <?php
+                        foreach ($hotel as $key => $value) {
+                            ?>
+
+                            <td>
+                                <?php
+                                // Nel caso in cui stia leggendo il campo con chiave "parking" associo i valori (true, false) alla stampa di (yes, no)
+                                // Altrimenti stampo il valore così come è
+                                if ($key == "parking") {
+                                    if ($value) {
+                                        echo "yes";
+                                    } else {
+                                        echo "no";
+                                    }
+                                } else {
+                                    echo $value;
+                                }
+                                ?>
+                            </td>
+
+                            <?php
+                        }
+                        ?>
+                    </tr>
+
+                    <?php
+                }
             }
             ?>
         </tbody>
